@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt;
 
 use crc::{Crc, CRC_32_ISO_HDLC};
 
@@ -97,8 +97,8 @@ impl TryFrom<&[u8]> for Chunk {
     }
 }
 
-impl Display for Chunk {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Chunk {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.data_as_string() {
             Ok(s) => write!(f, "{}", s),
             Err(_) => write!(f, ""),

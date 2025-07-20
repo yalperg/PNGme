@@ -1,4 +1,4 @@
-use std::{fmt::{Display, Formatter}, str::FromStr};
+use std::{fmt, str};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChunkType {
@@ -43,7 +43,7 @@ impl TryFrom<[u8; 4]> for ChunkType {
     }
 }
 
-impl FromStr for ChunkType {
+impl str::FromStr for ChunkType {
     type Err = String;
     fn from_str(str: &str) -> Result<Self, Self::Err> {
         if str.len() == 4 && str.is_ascii() {
@@ -55,8 +55,8 @@ impl FromStr for ChunkType {
     }
 }
 
-impl Display for ChunkType {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
+impl fmt::Display for ChunkType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", String::from_utf8_lossy(&self.bytes))
     }
 }
