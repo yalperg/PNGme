@@ -100,7 +100,7 @@ impl TryFrom<&[u8]> for Chunk {
 impl fmt::Display for Chunk {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.data_as_string() {
-            Ok(s) => write!(f, "{}", s),
+            Ok(s) => write!(f, "{}: {}", self.chunk_type, s),
             Err(_) => write!(f, ""),
         }
     }
