@@ -1,11 +1,5 @@
-mod args;
-mod chunk;
-mod chunk_type;
-mod commands;
-mod png;
-
+use pngme::{args::{Args, Commands}, *};
 use anyhow::Result;
-use args::{Args, Commands};
 use clap::Parser;
 
 fn main() -> Result<()> {
