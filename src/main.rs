@@ -1,4 +1,4 @@
-use pngme::{args::{Args, Commands}, *};
+use pngme::{args::{Args, Commands, Input}, *};
 use anyhow::Result;
 use clap::Parser;
 
@@ -7,19 +7,33 @@ fn main() -> Result<()> {
 
     match args.command {
         Commands::Encode {
-            file_path,
+            input,
+            url,
             chunk_type,
             message,
             output_file,
-        } => commands::encode(file_path, chunk_type, message, output_file),
+        } => {
+            let input = Input::from_args(input, url);
+            commands::encode(input, chunk_type, message, output_file)
+        }
         Commands::Decode {
-            file_path,
+            input,
+            url,
             chunk_type,
-        } => commands::decode(file_path, chunk_type),
+        } => {
+            let input = Input::from_args(input, url);
+            commands::decode(input, chunk_type)
+        }
         Commands::Remove {
-            file_path,
+            input,
             chunk_type,
-        } => commands::remove(file_path, chunk_type),
-        Commands::Print { file_path } => commands::print(file_path),
+        } => commands::remove(input, chunk_type),
+        Commands::Print {
+            input,
+            url,
+        } => {
+            let input = Input::from_args(input, url);
+            commands::print(input)
+        }
     }
 }

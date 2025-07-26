@@ -7,3 +7,5 @@ edition = "2021"
 anyhow = "1.0.98"
 crc = "3.3.0"
 clap = { version = "4.0", features = ["derive"] }
+reqwest = { version = "0.12.22", features = ["blocking"] }
+url = "2.5.4"
