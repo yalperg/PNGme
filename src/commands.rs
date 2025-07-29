@@ -7,6 +7,7 @@ use url::Url;
 use crate::args::Input;
 use crate::chunk::Chunk;
 use crate::chunk_type::ChunkType;
+use crate::crypto::{Crypto, EncryptedData};
 use crate::png::Png;
 
 fn get_png_bytes(input: &Input) -> Result<Vec<u8>> {
@@ -28,6 +29,7 @@ pub fn encode(
     chunk_type: String,
     message: String,
     output_file: Option<PathBuf>,
+    password: Option<String>,
 ) -> Result<()> {
     let file_bytes = get_png_bytes(&input)?;
 
@@ -39,7 +41,15 @@ pub fn encode(
         .map_err(anyhow::Error::msg)
         .context("Invalid chunk type")?;
 
-    let chunk = Chunk::new(chunk_type, message.into_bytes());
+    let final_message = if let Some(password) = password {
+        let encrypted =
+            Crypto::encrypt(&message, &password).context("Failed to encrypt message")?;
+        encrypted.to_base64()
+    } else {
+        message
+    };
+
+    let chunk = Chunk::new(chunk_type, final_message.into_bytes());
 
     png.append_chunk(chunk);
 
@@ -57,7 +67,7 @@ pub fn encode(
     Ok(())
 }
 
-pub fn decode(input: Input, chunk_type: String) -> Result<()> {
+pub fn decode(input: Input, chunk_type: String, password: Option<String>) -> Result<()> {
     let file_bytes = get_png_bytes(&input)?;
 
     let png = Png::try_from(file_bytes.as_slice())
@@ -65,10 +75,23 @@ pub fn decode(input: Input, chunk_type: String) -> Result<()> {
         .context("Failed to parse PNG data")?;
 
     if let Some(chunk) = png.chunk_by_type(&chunk_type) {
-        let message = chunk
+        let raw_message = chunk
             .data_as_string()
             .with_context(|| format!("Failed to decode chunk data as string: {}", chunk_type))?;
-        println!("Decoded message from chunk '{}': {}", chunk_type, message);
+
+        let final_message = if let Some(password) = password {
+            let encrypted_data = EncryptedData::from_base64(&raw_message)
+                .context("Failed to parse encrypted data")?;
+            Crypto::decrypt(&encrypted_data, &password)
+                .context("Failed to decrypt message - wrong password or corrupted data")?
+        } else {
+            raw_message
+        };
+
+        println!(
+            "Decoded message from chunk '{}': {}",
+            chunk_type, final_message
+        );
     } else {
         println!("No chunk of type '{}' found in the PNG file.", chunk_type);
     }

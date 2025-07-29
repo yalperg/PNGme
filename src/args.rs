@@ -34,12 +34,16 @@ pub enum Commands {
         message: String,
         #[arg(short, long)]
         output_file: Option<PathBuf>,
+        #[arg(short, long)]
+        password: Option<String>,
     },
     Decode {
         #[arg(short, long)]
         url: bool,
         input: String,
         chunk_type: String,
+        #[arg(short, long)]
+        password: Option<String>,
     },
     Remove {
         input: PathBuf,
@@ -49,5 +53,5 @@ pub enum Commands {
         #[arg(short, long)]
         url: bool,
         input: String,
-    }
+    },
 }
